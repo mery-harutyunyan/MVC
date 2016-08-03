@@ -19,7 +19,15 @@
 
             <?php if (isset($_SESSION['login_user']) && $_SESSION['login_user']) { ?>
                 <ul class="nav navbar-nav navbar-right">
-                    <li><a href="/users/logout">Log out</a></li>
+
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                           aria-expanded="false"><img height="30" width="30" src="../../../public/img/profile_images/<?php echo $user['image'];?>"> <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/users/logout">Log out</a></li>
+
+                        </ul>
+                    </li>
                 </ul>
             <?php } ?>
         </div>

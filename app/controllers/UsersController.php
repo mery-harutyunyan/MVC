@@ -54,14 +54,49 @@ class UsersController extends Controller
         $target_dir = ROOT . DS . 'public' . DS . 'img' . DS . 'profile_images' . DS;
         $target_file = $target_dir . basename($file['name']);
 
+
         $check = getimagesize($file["tmp_name"]);
         if ($check !== false) {
             if (move_uploaded_file($file["tmp_name"], $target_file)) {
+
+                $this->createThumb($target_file, 30, 30);
                 return true;
             } else {
                 return false;
             }
         }
+    }
+
+    /**
+     * create thumb for user image
+     */
+    public function createThumb($file, $thumbWidth = 30, $thumbHeight = 30)
+    {
+        $ext = pathinfo($file, PATHINFO_EXTENSION);
+        $fileName = pathinfo($file, PATHINFO_FILENAME);
+
+        switch ($ext) {
+            case 'png':
+                $function = 'imagecreatefrompng';
+                break;
+            case 'gif':
+                $function = 'imagecreatefromgif';
+                break;
+            case 'jpg' :
+                $function = 'imagecreatefromjpeg';
+                break;
+            case 'jpeg':
+                $function = 'imagecreatefromjpeg';
+                break;
+            default:
+                $function = 'imagecreatefromjpeg';
+                break;
+        }
+
+        list($width_orig, $height_orig) = getimagesize($filename);
+
+        var_dump($fileName);
+        die;
     }
 
     public function login()
@@ -74,7 +109,7 @@ class UsersController extends Controller
             $isValid = $this->get_model('User')->validateLogin($_POST);
             if ($isValid === true) {
 
-               $exists =  $this->get_model('User')->find('first', array(
+                $exists = $this->get_model('User')->find('first', array(
                     'select' => array(
                         'id',
                         'first_name',
@@ -92,7 +127,7 @@ class UsersController extends Controller
                 if ($exists) {
                     $_SESSION['login_user'] = $exists['id'];
                     $this->redirect('/users/profile');
-                }else{
+                } else {
                     $this->get_view()->set('login_error', 'User with that credentials does not exists');
                 }
             } else {
