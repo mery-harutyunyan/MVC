@@ -17,13 +17,15 @@ class Model
     public function getAll()
     {
         $query = 'select * from `' . $this->table . '`';
-        return $this->query($query);
+        $result = $this->mysqli->query($query);
+        return $result->fetch_assoc();
     }
 
     public function getById($id)
     {
         $query = 'select * from `' . $this->table . '` where `id` = \'' . $this->mysqli->real_escape_string($id) . '\'';
-        return $this->query($query);
+        $result = $this->mysqli->query($query);
+        return $result->fetch_assoc();
     }
 
     public function save($data)
@@ -43,7 +45,42 @@ class Model
         $query = 'INSERT INTO `' . $this->table . '` (' . implode(',', $array_keys_array) . ')
 VALUES (' . implode(',', ($array_values_array)) . ');';
 
-        return $this->query($query, 1);
+        $result = $this->mysqli->query($query);
+        return $this->mysqli->insert_id;
+    }
+
+    public function update($data = array())
+    {
+        if (isset($data['data'])) {
+
+            $fields = array();
+            array_walk($data['data'], function ($value, $key) use (&$fields) {
+                array_push($fields, "`" . $key . "` = '" . $value . "'");
+            });
+
+        }
+
+        if (isset($data['where'])) {
+
+            $where = array();
+            array_walk($data['where'], function ($value, $key) use (&$where) {
+                array_push($where, $key . " '" . $value . "'");
+            });
+        } else {
+            $where = '1=1';
+        }
+
+        $query = "UPDATE " . $this->table . " SET " . implode(',', $fields) . " WHERE   " . implode(' AND ', $where);
+
+
+        $result = $this->mysqli->query($query);
+        if ($this->mysqli->affected_rows) {
+            return true;
+        } else {
+            return false;
+        }
+
+
     }
 
 
@@ -82,8 +119,8 @@ VALUES (' . implode(',', ($array_values_array)) . ');';
         $query = "SELECT " . implode(',', $fields) . "  FROM  " . $this->table . " WHERE  " . implode(' AND ', $where) . ' ' . $limit;
 
 
-        return $this->query($query);
-
+        $result = $this->mysqli->query($query);
+        return $result->fetch_assoc();
     }
 
     public function query($query, $isInsert = 0)

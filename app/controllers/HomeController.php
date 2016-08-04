@@ -7,7 +7,12 @@ class HomeController extends Controller
         parent::__construct($controller, $action);
     }
 
-    public function index(){
+    public function index()
+    {
+
+
+
+
         $this->get_view()->render('home/index');
     }
 }

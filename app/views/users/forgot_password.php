@@ -6,9 +6,9 @@ $this->render('elements/menu');
 <div class="container">
     <div class="row">
         <div class="col-md-4 col-md-offset-4 well">
-            <form role="form" action="/users/login" method="post" name="loginform" id="loginform">
+            <form role="form" action="/users/sendPasswordEmail" method="post" name="forgotpasswordform" id="forgotpasswordform">
                 <fieldset>
-                    <legend>Login</legend>
+                    <legend>Forgot password</legend>
 
                     <div class="form-group">
                         <label for="name">Email</label>
@@ -16,20 +16,12 @@ $this->render('elements/menu');
                         <span class="text-danger"><?php if (isset($email_error)) echo $email_error; ?></span>
                     </div>
 
-                    <div class="form-group">
-                        <label for="name">Password</label>
-                        <input type="password" name="password" placeholder="Your Password"
-                               class="required password form-control"/>
-                        <span class="text-danger"><?php if (isset($password_error)) echo $password_error; ?></span>
-                    </div>
 
-                    <p><a href="/users/forgotPassword">Forgot password</a> </p>
-
-                    <span class="login-error text-danger"><?php if (isset($login_error)) echo $login_error; ?></span>
+                    <span class="login-error text-danger"><?php if (isset($forgotpassword_error)) echo $forgotpassword_error; ?></span>
 
 
                     <div class="form-group">
-                        <button type="submit" name="login" class="btn btn-primary">Login</button>
+                        <button type="submit" name="submit" class="btn btn-primary">Go</button>
                     </div>
                 </fieldset>
             </form>
@@ -48,7 +40,7 @@ $this->render('elements/menu');
             $(this).next(".text-danger").html(message).slideDown();
         });
 
-        $("#loginform").submit(function (e) {
+        $("#forgotpasswordform").submit(function (e) {
             if ($(e.target).data('valid') === undefined || $(e.target).data('valid') == false) {
                 e.preventDefault();
 
@@ -62,7 +54,7 @@ $this->render('elements/menu');
 
                 if (message == '') {
                     $(e.target).data('valid', true);
-                    $("#loginform").submit();
+                    $("#forgotpasswordform").submit();
                 } else {
                     $(e.target).data('valid', false);
                 }
@@ -77,16 +69,7 @@ $this->render('elements/menu');
         } else if (input.hasClass('email') && !isValidEmailAddress(input.val())) {
             error_message = "<p>Please enter valid email</p>";
 
-        } else if (input.hasClass('password') && !isValidPassword(input.val())) {
-            error_message = "<p>Password must contain digit, uppercase and lowercase letters</p>";
-        }
-        else if (input.hasClass('password') && !isValidPasswordLength(input.val())) {
-            error_message = "<p>Password must contain 3-8 letters</p>"
-        }
-        else if (input.hasClass('cpassword') && input.val() != $('.password').val()) {
-            error_message = "<p>Passwords does not match</p>";
-        }
-        else {
+        } else {
             error_message = "";
         }
 
@@ -99,18 +82,6 @@ $this->render('elements/menu');
         return pattern.test(email);
     }
 
-
-    function isValidPassword(password) {
-
-        return /^[A-Za-z0-9\d=!\-@._*]*$/.test(password) // consists of only these
-            && /[A-Z]/.test(password) // has a uppercase letter
-            && /[a-z]/.test(password) // has a lowercase letter
-            && /\d/.test(password) // has a digit
-    }
-
-    function isValidPasswordLength(password) {
-        return password.length >= 3 && password.length <= 8
-    }
 
 </script>
 <?php

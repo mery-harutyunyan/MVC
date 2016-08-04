@@ -10,6 +10,7 @@ define('DB_HOST', 'localhost');
 // Website URL and path
 define('PATH', 'http://mery.dev/');
 define('WEBSITE_TITLE', 'mery.com');
+define('WEBSITE_MAIL', 'mery0819@gmail.com');
 
 // Default controller to load — homepage requests are sent to this controller
  define('DEFAULT_CONTROLLER', 'home');

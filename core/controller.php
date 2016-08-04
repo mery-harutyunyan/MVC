@@ -16,6 +16,15 @@ class Controller extends Application
         $this->view = new View();
 
         session_start();
+
+
+        if (isset($_SESSION['login_user']) && $_SESSION['login_user']) {
+            $this->load_model('User');
+            $user_id = $_SESSION['login_user'];
+            $user = $this->get_model('User')->getById($user_id);
+
+            $this->get_view()->set('user', $user);
+        }
     }
 
     // Load model class protected

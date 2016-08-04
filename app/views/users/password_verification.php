@@ -3,33 +3,34 @@ $this->render('elements/header');
 $this->render('elements/menu');
 ?>
 
+
 <div class="container">
+
     <div class="row">
         <div class="col-md-4 col-md-offset-4 well">
-            <form role="form" action="/users/login" method="post" name="loginform" id="loginform">
+            <form role="form" action="/users/passwordVerification" method="post" name="passwordverificationform" id="passwordverificationform">
                 <fieldset>
-                    <legend>Login</legend>
+                    <legend>Reset password</legend>
 
+                    <input type="hidden" name="user_id" value="<?php echo $user_id;?>">
                     <div class="form-group">
-                        <label for="name">Email</label>
-                        <input type="text" name="email" placeholder="Your Email" class="required email form-control"/>
-                        <span class="text-danger"><?php if (isset($email_error)) echo $email_error; ?></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="name">Password</label>
-                        <input type="password" name="password" placeholder="Your Password"
-                               class="required password form-control"/>
+                        <label for="name">New password</label>
+                        <input id="password" type="password" name="password" placeholder="Password"
+                               class="password required form-control"/>
                         <span class="text-danger"><?php if (isset($password_error)) echo $password_error; ?></span>
                     </div>
 
-                    <p><a href="/users/forgotPassword">Forgot password</a> </p>
+                    <div class="form-group">
+                        <label for="name">Confirm New Password</label>
+                        <input type="password" name="cpassword" placeholder="Confirm Password"
+                               class="cpassword required form-control"/>
+                        <span class="text-danger"><?php if (isset($cpassword_error)) echo $cpassword_error; ?></span>
+                    </div>
 
-                    <span class="login-error text-danger"><?php if (isset($login_error)) echo $login_error; ?></span>
 
 
                     <div class="form-group">
-                        <button type="submit" name="login" class="btn btn-primary">Login</button>
+                        <button type="submit" class="btn btn-primary">Reset password</button>
                     </div>
                 </fieldset>
             </form>
@@ -37,18 +38,17 @@ $this->render('elements/menu');
         </div>
     </div>
 
-</div>
+</div> <!-- /container -->
+
 <script>
     $(document).ready(function () {
 
         $("input").blur(function () {
-
-            $('.login-error').html('');
             message = validate($(this));
             $(this).next(".text-danger").html(message).slideDown();
         });
 
-        $("#loginform").submit(function (e) {
+        $("#passwordverificationform").submit(function (e) {
             if ($(e.target).data('valid') === undefined || $(e.target).data('valid') == false) {
                 e.preventDefault();
 
@@ -60,10 +60,10 @@ $this->render('elements/menu');
 
                 })
 
-                if (message == '') {
+                if(message == ''){
                     $(e.target).data('valid', true);
-                    $("#loginform").submit();
-                } else {
+                    $("#passwordverificationform").submit();
+                }else{
                     $(e.target).data('valid', false);
                 }
             }
@@ -74,9 +74,6 @@ $this->render('elements/menu');
         var error_message = '';
         if (input.hasClass('required') && input.val() == '') {
             error_message = "<p>This field is required</p>";
-        } else if (input.hasClass('email') && !isValidEmailAddress(input.val())) {
-            error_message = "<p>Please enter valid email</p>";
-
         } else if (input.hasClass('password') && !isValidPassword(input.val())) {
             error_message = "<p>Password must contain digit, uppercase and lowercase letters</p>";
         }
@@ -94,11 +91,7 @@ $this->render('elements/menu');
 
     }
 
-    function isValidEmailAddress(email) {
-        var pattern = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
-        return pattern.test(email);
-    }
-
+  
 
     function isValidPassword(password) {
 
@@ -116,4 +109,14 @@ $this->render('elements/menu');
 <?php
 $this->render('elements/footer');
 ?>
+
+
+
+
+
+
+
+
+
+
 
