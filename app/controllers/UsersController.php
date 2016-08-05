@@ -30,22 +30,21 @@ class UsersController extends Controller
                     'verify_token' => md5(microtime()),
                     'active' => 0
                 );
-                $allUsers = $this->get_model('User')->save($data);
+                $allUsers = $this->get_model('User')->insert($data);
 
                 if ($allUsers) {
 
-                    $mailData = $this->get_model('User')->find('first', array(
-                        'select' => array(
-
+                    $mailData = $this->get_model('User')
+                        ->select(array(
                             'first_name',
                             'last_name',
                             'email',
                             'verify_token'
-                        ),
-                        'where' => array(
-                            'id =' => $allUsers,
+                        ))
+                        ->where(
+                            'id', "=", $allUsers
                         )
-                    ));
+                        ->first();
 
                     $mail = new Mailer();
                     $mail->sendVerificationEmail($mailData);
@@ -53,9 +52,7 @@ class UsersController extends Controller
                 }
             } else {
                 if (!empty($isValid)) {
-                    foreach ($isValid as $key => $value) {
-                        $this->get_view()->set($key, $value);
-                    }
+                    $this->get_view()->viewData($isValid);
                 }
 
             }
@@ -66,40 +63,39 @@ class UsersController extends Controller
     /**
      * verify account and login user
      */
-    public function accountVerification($token = null)
+    public function accountVerification($token)
     {
 
         if (!$token) {
             $this->redirect('/');
         }
 
-        $userExists = $this->get_model('User')->find('first', array(
-            'select' => array(
+        $userExists = $this->get_model('User')
+            ->select(array(
                 'id',
                 'first_name',
                 'last_name',
                 'email',
                 'verify_token'
-            ),
-            'where' => array(
-                'verify_token =' => $token,
-                'active =' => 0
+            ))
+            ->where(
+                'verify_token', '=', $token
             )
-        ));
+            ->where('active', '=', 0)
+            ->first();
 
 
         if (empty($userExists)) {
             $this->redirect('/');
         }
-        $update = $this->get_model('User')->update(array(
-            'data' => array(
+        $update = $this->get_model('User')
+            ->where(
+                'id', '=', $userExists['id']
+            )
+            ->update(array(
                 'verify_token' => null,
                 'active' => 1
-            ),
-            'where' => array(
-                'id =' => $userExists['id'],
-            )
-        ));
+            ));
 
         if ($update) {
             $_SESSION['login_user'] = $userExists['id'];
@@ -120,7 +116,7 @@ class UsersController extends Controller
         if ($check !== false) {
             if (move_uploaded_file($file["tmp_name"], $target_file)) {
 
-                $this->createThumb($target_file, 30);
+                $this->createThumb($target_file, 30, 30);
                 return true;
             } else {
                 return false;
@@ -131,7 +127,7 @@ class UsersController extends Controller
     /**
      * create thumb for user image
      */
-    public function createThumb($file, $thumbWidthHeight = 30)
+    public function createThumb($file, $thumbWidth = 30, $thumbHeight = 30)
     {
 
         $ext = pathinfo($file, PATHINFO_EXTENSION);
@@ -166,7 +162,7 @@ class UsersController extends Controller
         list($originWidth, $originHeight) = getimagesize($file);
 
 
-        $thumb = imagecreatetruecolor($thumbWidthHeight, $thumbWidthHeight);
+        $thumb = imagecreatetruecolor($thumbWidth, $thumbHeight);
         if ($ext == 'png') {
             imagealphablending($thumb, false);
             imagesavealpha($thumb, true);
@@ -177,7 +173,7 @@ class UsersController extends Controller
         $minRect = min($originWidth, $originHeight);
 
 
-        imagecopyresized($thumb, $image, 0, 0, ($originWidth - $minRect) / 2, ($originHeight - $minRect) / 2, $thumbWidthHeight, $thumbWidthHeight, $minRect, $minRect);
+        imagecopyresized($thumb, $image, 0, 0, ($originWidth - $minRect) / 2, ($originHeight - $minRect) / 2, $thumbWidth, $thumbHeight, $minRect, $minRect);
 
 // Output
         $imageFunction($thumb, $thumb_file);
@@ -193,36 +189,35 @@ class UsersController extends Controller
             $isValid = $this->get_model('User')->validateLogin($_POST);
             if ($isValid === true) {
 
-                $exists = $this->get_model('User')->find('first', array(
-                    'select' => array(
+                $exists = $this->get_model('User')
+                    ->select(array(
                         'id',
                         'first_name',
                         'last_name',
                         'email',
                         'image',
                         'active'
-                    ),
-                    'where' => array(
-                        'email =' => $_POST['email'],
-                        'password =' => md5($_POST['password'])
-                    )
-                ));
+                    ))
+                    ->where('email', '=', $_POST['email'])
+                    ->where('password', '=', md5($_POST['password']))
+                    ->first();
 
 
                 if ($exists && $exists['active'] == 1) {
                     $_SESSION['login_user'] = $exists['id'];
                     $this->redirect('/users/profile');
                 } elseif ($exists && $exists['active'] == 0) {
-                    $this->get_view()->set('login_error', 'Please verify your account');
-
+                    $this->get_view()->viewData(array(
+                        'login_error' => 'Please verify your account'
+                    ));
                 } else {
-                    $this->get_view()->set('login_error', 'User with that credentials does not exists');
+                    $this->get_view()->viewData(array(
+                        'login_error' => 'User with that credentials does not exists'
+                    ));
                 }
             } else {
                 if (!empty($isValid)) {
-                    foreach ($isValid as $key => $value) {
-                        $this->get_view()->set($key, $value);
-                    }
+                    $this->get_view()->viewData($isValid);
                 }
 
             }
@@ -248,8 +243,7 @@ class UsersController extends Controller
         $user_id = $_SESSION['login_user'];
         $user = $this->get_model('User')->getById($user_id);
 
-        $this->get_view()->set('user', $user);
-        $this->get_view()->render('users/profile');
+        $this->get_view()->render('users/profile', $user);
     }
 
     /**
@@ -273,47 +267,44 @@ class UsersController extends Controller
         if (isset($_POST) && !empty($_POST)) {
             $isValid = $this->get_model('User')->validateEmail($_POST);
             if ($isValid === true) {
-                $userExists = $this->get_model('User')->find('first', array(
-                    'select' => array(
+                $userExists = $this->get_model('User')
+                    ->select(array(
                         'id',
                         'first_name',
                         'last_name',
                         'email',
                         'password_token'
-                    ),
-                    'where' => array(
-                        'email =' => $_POST['email'],
-                        'active =' => 1
-                    )
-                ));
+                    ))
+                    ->where('email', '=', $_POST['email'])
+                    ->where('active', '=', 1)
+                    ->first();
 
                 if ($userExists) {
 
                     $passwordToken = md5(microtime());
-                    $update = $this->get_model('User')->update(array(
-                        'data' => array(
+                    $update = $this->get_model('User')
+                        ->where('id', '=', $userExists['id'])
+                        ->update(array(
                             'password_token' => $passwordToken,
-                        ),
-                        'where' => array(
-                            'id =' => $userExists['id'],
-                        )
-                    ));
+                        ));
 
                     $userExists['password_token'] = $passwordToken;
-
 
                     $mail = new Mailer();
                     $mail->sendPasswordChangeEmail($userExists);
                     $this->redirect('/');
                 } else {
-                    $this->get_view()->set('forgotpassword_error', 'User does not exists or not verified account');
+
+                    $this->get_view()->viewData(array(
+                        'forgotpassword_error' => 'User does not exists or not verified account'
+                    ));
+
                     $this->redirect('/users/forgotPassword');
                 }
             } else {
                 if (!empty($isValid)) {
-                    foreach ($isValid as $key => $value) {
-                        $this->get_view()->set($key, $value);
-                    }
+
+                    $this->get_view()->viewData($isValid);
                 }
 
             }
@@ -327,21 +318,18 @@ class UsersController extends Controller
     public function passwordVerification($token = null)
     {
 
-
-
         if (isset($_POST) && !empty($_POST)) {
             $isValid = $this->get_model('User')->validatePasswords($_POST);
 
             if ($isValid === true) {
-                $update = $this->get_model('User')->update(array(
-                    'data' => array(
+                $update = $this->get_model('User')
+                    ->where(
+                        'id', "=", $_POST['user_id']
+                    )
+                    ->update(array(
                         'password_token' => null,
                         'password' => md5($_POST['password'])
-                    ),
-                    'where' => array(
-                        'id =' => $_POST['user_id'],
-                    )
-                ));
+                    ));
 
                 if ($update) {
                     $_SESSION['login_user'] = $_POST['user_id'];
@@ -349,41 +337,35 @@ class UsersController extends Controller
                 }
             } else {
                 if (!empty($isValid)) {
-                    foreach ($isValid as $key => $value) {
-                        $this->get_view()->set($key, $value);
-                    }
+                    $this->get_view()->viewData($isValid);
                 }
             }
-        }else{
+        } else {
             if (!$token) {
                 $this->redirect('/');
             }
 
-            $userExists = $this->get_model('User')->find('first', array(
-                'select' => array(
+            $userExists = $this->get_model('User')
+                ->select(array(
                     'id',
                     'first_name',
                     'last_name',
                     'email',
                     'password_token'
-                ),
-                'where' => array(
-                    'password_token =' => $token,
-                    'active =' => 1
-                )
+                ))
+                ->where('password_token', '=', $token)
+                ->where('active', '=', 1)
+                ->first();
+
+            $this->get_view()->viewData(array(
+                'user_id' => $userExists['id']
             ));
-
-
-            $this->get_view()->set('user_id', $userExists['id']);
             if (empty($userExists)) {
                 $this->redirect('/');
             }
-
         }
-
 
         $this->get_view()->render('users/password_verification');
     }
-
 
 }

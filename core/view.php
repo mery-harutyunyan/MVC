@@ -9,13 +9,14 @@ class View
 
     }
 
-    function set($name, $value)
+    function viewData($data = array())
     {
-        $this->variables[$name] = $value;
+        $this->variables = $data;
     }
 
-    function render($view_name)
+    function render($view_name, $data = array())
     {
+        $this->variables = $this->variables + $data;
         extract($this->variables);
         if (file_exists(ROOT . DS . 'app' . DS . 'views' . DS . $view_name . '.php')) {
             include(ROOT . DS . 'app' . DS . 'views' . DS . $view_name . '.php');

@@ -17,13 +17,11 @@ class Mailer
     public function getMailHtml($file, $data)
     {
 
-
         ob_start();                      // start capturing output
         include(ROOT . DS . 'app' . DS . 'views' . DS . 'mails' . DS . $file . '.php');   // execute the file
         $html = ob_get_contents();    // get the contents from the buffer
         ob_end_clean();
 
-        // var_dump($html);die;
         return $html;
 
     }

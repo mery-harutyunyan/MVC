@@ -9,10 +9,6 @@ class HomeController extends Controller
 
     public function index()
     {
-
-
-
-
         $this->get_view()->render('home/index');
     }
 }

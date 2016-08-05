@@ -23,7 +23,9 @@ class Controller extends Application
             $user_id = $_SESSION['login_user'];
             $user = $this->get_model('User')->getById($user_id);
 
-            $this->get_view()->set('user', $user);
+            $this->get_view()->viewData(array(
+                'user' => $user
+            ));
         }
     }
 

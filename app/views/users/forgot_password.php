@@ -30,12 +30,12 @@ $this->render('elements/menu');
     </div>
 
 </div>
+<script src="../../../public/js/form_validation.js"></script>
 <script>
     $(document).ready(function () {
 
         $("input").blur(function () {
 
-            $('.login-error').html('');
             message = validate($(this));
             $(this).next(".text-danger").html(message).slideDown();
         });
@@ -61,27 +61,6 @@ $this->render('elements/menu');
             }
         });
     })
-
-    function validate(input) {
-        var error_message = '';
-        if (input.hasClass('required') && input.val() == '') {
-            error_message = "<p>This field is required</p>";
-        } else if (input.hasClass('email') && !isValidEmailAddress(input.val())) {
-            error_message = "<p>Please enter valid email</p>";
-
-        } else {
-            error_message = "";
-        }
-
-        return error_message;
-
-    }
-
-    function isValidEmailAddress(email) {
-        var pattern = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
-        return pattern.test(email);
-    }
-
 
 </script>
 <?php
