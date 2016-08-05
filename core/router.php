@@ -32,6 +32,15 @@ class Router
 
 
         if ((int)method_exists($controller, $action)) {
+
+            $reflection = new ReflectionMethod($controller, $action);
+            if (!$reflection->isPublic()) {
+                $errorUrl = '/errors/notFoundMethod';
+                header('Location: ' . $errorUrl, true, $permanent ? 301 : 302);
+
+                exit();
+            }
+
             call_user_func_array(array($dispatch, $action), $query_string);
         } else {
             $errorUrl = '/errors/notFoundMethod';

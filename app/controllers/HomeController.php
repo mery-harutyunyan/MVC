@@ -11,4 +11,5 @@ class HomeController extends Controller
     {
         $this->get_view()->render('home/index');
     }
+
 }
